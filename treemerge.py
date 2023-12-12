@@ -53,6 +53,8 @@ from gramps.gui.managedwindow import ManagedWindow
 from gramps.gui.dialog import RunDatabaseRepair
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 
+from gramps.gen.errors import HandleError, MergeError  # By Waldemir Silva
+
 # from libaccess import *
 from matchview import ViewPersonMatch
 from match import Match
@@ -67,14 +69,22 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))  # ??
 #
 # -------------------------------------------------------------------------
 _val2label = {
-    0.5: _("Low"),
+     0.5: _("Low"),
     0.75: _("Medium"),
-    0.9: _("High"),
+     0.9: _("High"),
 }
 
 _automergecutoff = {
+  # 1.00: "1.00",
     0.99: "0.99",
+    0.98: "0.98",
+    0.97: "0.97",
+    0.96: "0.96",
     0.95: "0.95",
+    0.94: "0.94",
+    0.93: "0.93",
+    0.92: "0.92",
+    0.91: "0.91",
     0.90: "0.90"
 }
 
@@ -146,9 +156,11 @@ class TreeMerge(tool.Tool, ManagedWindow):  # CHECK use BatchTool when using aut
 
         self.automergecutoff = top.get_object("automergecutoff")
         self.automergecutoff.set_model(my_automergecutoff)
-        self.automergecutoff.set_active(1)
+        #self.automergecutoff.set_active(1)
+        self.automergecutoff.set_active(0) # By Waldemir Silva
 
         mlist = top.get_object("mlist1")
+
         mtitles = [
             (_('Rating'), 3, 75),
             (_('First Person'), 1, 300),
@@ -278,6 +290,7 @@ class TreeMerge(tool.Tool, ManagedWindow):  # CHECK use BatchTool when using aut
         label_msg1 = 'OK'
         label_msg2 = 'NO thanks'
         matches = []
+
         # sort by rating = c
         for p1key, p1data in sorted(self.map.items(), key=lambda item: item[1][1], reverse=True):
             if p1key in self.dellist:
@@ -288,13 +301,24 @@ class TreeMerge(tool.Tool, ManagedWindow):  # CHECK use BatchTool when using aut
             if p1key == p2key:
                 continue
             matches.append((p1key, p2key))
-        msg2 = 'You are about to batch merge %d matches with rating above %s' % (
-            len(matches), cutoff)
+
+        msg2 = _('You are about to batch merge %d matches with rating above %s') % (len(matches), cutoff)
         res = QuestionDialog2(msg1, msg2, label_msg1, label_msg2).run()
         if not res:
             return  # False
+
+        msg1 = _('Processing automerge') # By Waldemir Silva
+        msg2 = _('You are about to batch merge %d matches with rating above %s') % (len(matches), cutoff)
+        msg3 = _('Merging...')
+
+        self.progress = ProgressMeter( msg1, msg2, True, parent=self.window) # By Waldemir Silva
+
+        self.progress.set_pass(msg3, len(matches))
+
         for (p1key, p2key) in matches:
             try:
+                if self.progress.step(): # by Waldemir Silva
+                   break
                 primary = self.dbstate.db.get_person_from_handle(p1key)
                 secondary = self.dbstate.db.get_person_from_handle(p2key)
                 query = MergePersonQuery(self.dbstate.db, primary, secondary)
@@ -303,6 +327,16 @@ class TreeMerge(tool.Tool, ManagedWindow):  # CHECK use BatchTool when using aut
                 self.cleanEventsFamilies(person)
             except HandleError:
                 pass
+                #print("An exception occurred:", type(error).__name__, "–", error)  # An exception occurred: Handle exception
+            except MergeError as error: # by Waldemir Silv
+                # handle the exception
+                print("An exception occurred:", type(error).__name__, "–", error)  # An exception occurred: can't merge
+            except Exception as error:   # by Waldemir Silva
+                # handle the exception
+                print("An exception occurred:",type(error).__name__, "–", error)  # An exception occurred: other exceptions
+                #continue
+
+        self.progress.close() # By Waldemir Silva
 
     def do_comp(self, obj):
         store, select_line = self.mlist.selection.get_selected()
@@ -352,7 +386,7 @@ class TreeMerge(tool.Tool, ManagedWindow):  # CHECK use BatchTool when using aut
         birth = None
         death = None
         for evref in person.get_event_ref_list():
-            event =  self.dbstate.db.get_event_from_handle(evref.ref)
+            event = self.dbstate.db.get_event_from_handle(evref.ref)
             if event.get_type().is_birth():
                 if birth:
                     birth = self.Merge(birth, event)
