@@ -77,6 +77,7 @@ class fulltextDatabase():
             person = ' OR '.join(row['person'].split())
             sex = row['sex']
         sql = "SELECT grampsHandle,person,rank FROM ft WHERE person MATCH '%s' AND sex='%s' ORDER BY RANK LIMIT %d" % (person, sex, ant)
+        print(sql)
         self.cur.execute(sql)
         hits = []
         maxScore = 0.0

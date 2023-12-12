@@ -4,6 +4,12 @@
 #
 #------------------------------------------------------------------------
 
+#import pip
+#pip.main(['install', '--user', '--upgrade', '--break-system-packages', 'setuptools'])
+#pip.main(['install', '--user', '--upgrade', '--break-system-packages', 'joblib'])
+#pip.main(['install', '--user', '--upgrade', '--break-system-packages', 'sklearn'])
+#pip.main(['install', '--user', '--upgrade', '--break-system-packages', 'scikit-learn'])
+
 register(TOOL,
          id = 'treemerge',
          name = _("Merge 2 trees by matching persons"),
