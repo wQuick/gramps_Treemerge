@@ -25,7 +25,6 @@ import sys
 import os
 from collections import defaultdict
 from joblib import load  # ??pickle??
-#from pickle import load  # ??pickle??
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.soundex import soundex, compare
 from gramps.gen.lib import Event, Person
