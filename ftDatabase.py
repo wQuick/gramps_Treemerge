@@ -19,7 +19,7 @@ class fulltextDatabase():
         self.cur = self.db.cursor()
         if clean:
             self.createTables()
-        
+
     def __del__(self):
         self.db.close()
 
@@ -39,10 +39,10 @@ class fulltextDatabase():
 
     def cleanDate(self, datestring):
         return re.sub(r'[^\d]', '', datestring)  # remove all non-digits?
-    
+
     def addDocument(self, grampsHandle, text, sex=''):
         self.cur.execute("INSERT INTO ft VALUEs (?, ?, ?)", (grampsHandle, sex, text))
- 
+
     def index(self, person, birthDate, birthPlace, deathDate, deathPlace):
         """Generate fulltext from person-record"""
         text = []
@@ -78,7 +78,7 @@ class fulltextDatabase():
             #  Use OR propability search
             person = ' OR '.join('"{0}"'.format(w) for w in row['person'].split())
             sex = row['sex']
-        sql = "SELECT grampsHandle,person,rank FROM ft WHERE person MATCH '%s' AND sex='%s' ORDER BY RANK LIMIT %d" % (person, sex, ant)
+        sql = "SELECT grampsHandle,person,rank FROM ft WHERE (person MATCH '%s') AND (sex='%s') ORDER BY RANK LIMIT %d" % (person, sex, ant)
         self.cur.execute(sql)
         hits = []
         maxScore = 0.0
