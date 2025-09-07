@@ -9,6 +9,7 @@
 #pip.main(['install', '--user', '--upgrade', '--break-system-packages', 'joblib'])
 #pip.main(['install', '--user', '--upgrade', '--break-system-packages', 'sklearn'])
 #pip.main(['install', '--user', '--upgrade', '--break-system-packages', 'scikit-learn'])
+from gramps.version import major_version
 
 register(TOOL,
          id = 'treemerge',
@@ -17,7 +18,7 @@ register(TOOL,
                          "individual entries that may represent the same person."
                          "Verify by viewing small tree around the matched persons."),
          version = '0.8beta',
-         gramps_target_version = '5.2',
+         gramps_target_version = major_version,
          status = STABLE,
          fname = 'treemerge.py',
          authors = ["Anders Ardo"],
