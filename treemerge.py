@@ -325,7 +325,8 @@ class TreeMerge(tool.Tool, ManagedWindow):  # CHECK use BatchTool when using aut
                 query.execute()
                 person = self.dbstate.db.get_person_from_handle(p1key)
                 self.cleanEventsFamilies(person)
-            except HandleError:
+            except Exception as msg:
+                #HANDLE exception HandleError in some way??
                 pass
                 #print("An exception occurred:", type(error).__name__, "–", error)  # An exception occurred: Handle exception
             except MergeError as error: # by Waldemir Silv
